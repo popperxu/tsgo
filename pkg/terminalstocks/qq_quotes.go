@@ -2,7 +2,7 @@ package TerminalStocks
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"regexp"
@@ -51,7 +51,7 @@ func GetRealtime(code string) []*RealTimeData {
 		return nil
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	res := mahonia.NewDecoder("gbk").ConvertString(string(body))
 
 	var dataList []*RealTimeData
@@ -120,7 +120,7 @@ func GetPK(code string) *PKData {
 		return nil
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	res := mahonia.NewDecoder("gbk").ConvertString(string(body))
 	dataArray := strings.Split(res, "~")
 	data := new(PKData)
@@ -138,7 +138,7 @@ func GetFundFlow(code string) *FundFlow {
 		return nil
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	res := mahonia.NewDecoder("gbk").ConvertString(string(body))
 	dataArray := strings.Split(res, "~")
 	data := new(FundFlow)
@@ -159,7 +159,7 @@ func GetInfo(code string) *StockInfo {
 		return nil
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	res := mahonia.NewDecoder("gbk").ConvertString(string(body))
 	dataArray := strings.Split(res, "~")
 	data := new(StockInfo)
@@ -181,7 +181,7 @@ func GetDaily(code string, year int) []*HistoryData {
 		return nil
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	res := string(body)
 	dataArray := strings.Split(res, "\\n\\")
 	list := []*HistoryData{}
@@ -210,7 +210,7 @@ func GetWeekly(code string) []*HistoryData {
 		return nil
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	res := string(body)
 	dataArray := strings.Split(res, "\\n\\")
 	list := []*HistoryData{}

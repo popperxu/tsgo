@@ -2,7 +2,7 @@ package TerminalStocks
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"strings"
 	"testing"
 
@@ -58,7 +58,7 @@ func TestQQQuotesCase2(t *testing.T) {
 	quotes := NewQuotes(market, profile)
 	require.NotNil(t, quotes)
 
-	data, err := ioutil.ReadFile("./yahoo_quotes_sample.json")
+	data, err := io.ReadFile("./yahoo_quotes_sample.json")
 	require.Nil(t, err)
 	require.NotNil(t, data)
 

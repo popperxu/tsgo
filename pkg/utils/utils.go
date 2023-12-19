@@ -3,7 +3,7 @@ package util
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -142,7 +142,7 @@ func get_day_type(query_date string) int {
 		return -1
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	res := string(body)
 	d := map[string]interface{}{}
 	err = json.Unmarshal([]byte(res), &d)

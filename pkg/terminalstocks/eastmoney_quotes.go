@@ -3,7 +3,7 @@ package TerminalStocks
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"regexp"
@@ -41,7 +41,7 @@ func GetRealtimeEastmoney(code string) []*RealTimeData {
 		return nil
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	res := mahonia.NewDecoder("gbk").ConvertString(string(body))
 
 	var dataList []*RealTimeData
@@ -110,7 +110,7 @@ func GetPKEastmoney(code string) *PKData {
 		return nil
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	res := mahonia.NewDecoder("gbk").ConvertString(string(body))
 	dataArray := strings.Split(res, "~")
 	data := new(PKData)
@@ -128,7 +128,7 @@ func GetFundFlowEastmoney(code string) *FundFlow {
 		return nil
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	res := mahonia.NewDecoder("gbk").ConvertString(string(body))
 	dataArray := strings.Split(res, "~")
 	data := new(FundFlow)
@@ -149,7 +149,7 @@ func GetInfoEastmoney(code string) *StockInfo {
 		return nil
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	res := mahonia.NewDecoder("gbk").ConvertString(string(body))
 	dataArray := strings.Split(res, "~")
 	data := new(StockInfo)
@@ -177,7 +177,7 @@ func GetDailyEastmoney(code string) []*HistoryData {
 		return nil
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	res := string(body)
 	d := map[string]interface{}{}
 	//dataArray := strings.Split(res, "\\n\\")
@@ -226,7 +226,7 @@ func GetWeeklyEastmoney(code string) []*HistoryData {
 		return nil
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	res := string(body)
 	dataArray := strings.Split(res, "\\n\\")
 	list := []*HistoryData{}
@@ -277,7 +277,7 @@ func (quotes *Quotes) FetchEastmoney() (self *Quotes) {
 		}
 
 		defer response.Body.Close()
-		body, err := ioutil.ReadAll(response.Body)
+		body, err := io.ReadAll(response.Body)
 		if err != nil {
 			panic(err)
 		}

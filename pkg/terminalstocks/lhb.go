@@ -3,7 +3,7 @@ package TerminalStocks
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -31,7 +31,7 @@ func GetLhbEastmoney(date string) []LhbData {
 		return nil
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	res := mahonia.NewDecoder("gbk").ConvertString(string(body))
 	d := map[string]interface{}{}
 	reusltString := strings.TrimLeft(string(res), "var data_tab_1=")

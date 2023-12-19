@@ -5,7 +5,7 @@
 package TerminalStocks
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -42,7 +42,7 @@ func fetchCrumb(cookies string) string {
 	}
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		panic(err)
 	}

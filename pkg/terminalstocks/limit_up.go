@@ -3,7 +3,7 @@ package TerminalStocks
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"regexp"
@@ -29,7 +29,7 @@ func GetLimitupEastmoney() ([]Stock, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	res := body //mahonia.NewDecoder("gbk").ConvertString(string(body))
 	d := map[string]interface{}{}
 	reusltString := strings.TrimLeft(string(res), "jQuery112403947390609559913_1593128751691(")

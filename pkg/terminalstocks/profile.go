@@ -6,8 +6,10 @@ package TerminalStocks
 
 import (
 	"encoding/json"
+	"os"
+
 	//"fmt"
-	"io/ioutil"
+
 	"os/user"
 	"sort"
 )
@@ -33,7 +35,7 @@ type Profile struct {
 func NewProfile(vendor APISourceType) *Profile {
 	profile := &Profile{}
 	//fmt.Println(profile.defaultFileName())
-	data, err := ioutil.ReadFile(profile.defaultFileName())
+	data, err := os.ReadFile(profile.defaultFileName())
 	if err != nil { // Set default values:
 		profile.MarketRefresh = 12 // Market data gets fetched every 12s (5 times per minute).
 		profile.QuotesRefresh = 5  // Stock quotes get updated every 5s (12 times per minute).
@@ -61,7 +63,7 @@ func (profile *Profile) Save() error {
 		return err
 	}
 
-	return ioutil.WriteFile(profile.defaultFileName(), data, 0644)
+	return os.WriteFile(profile.defaultFileName(), data, 0644)
 }
 
 // AddTickers updates the list of existing tikers to add the new ones making
@@ -130,7 +132,7 @@ func (profile *Profile) Regroup() error {
 	return profile.Save()
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (profile *Profile) defaultFileName() string {
 	usr, err := user.Current()
 	if err != nil {

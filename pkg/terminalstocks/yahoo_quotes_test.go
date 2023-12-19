@@ -5,7 +5,7 @@
 package TerminalStocks
 
 import (
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -21,7 +21,7 @@ func TestQuotes(t *testing.T) {
 	quotes := NewQuotes(market, profile)
 	require.NotNil(t, quotes)
 
-	data, err := ioutil.ReadFile("./yahoo_quotes_sample.json")
+	data, err := io.ReadFile("./yahoo_quotes_sample.json")
 	require.Nil(t, err)
 	require.NotNil(t, data)
 
