@@ -5,15 +5,16 @@
 package TerminalStocks
 
 import (
-	"bytes"
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"regexp"
 	"strings"
 )
 
-const marketURL = `https://money.cnn.com/data/markets/`
+const marketURL = `https://query1.finance.yahoo.com/v7/finance/quote?crumb=%s&symbols=%s`
+const marketURLQueryParts = `&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance`
 
 // Market stores current market information displayed in the top three lines of
 // the screen. The market data is fetched and parsed from the HTML page above.
@@ -38,6 +39,9 @@ type Market struct {
 	Cybz      map[string]string
 	regex     *regexp.Regexp // Regex to parse market data from HTML.
 	errors    string         // Error(s), if any.
+	url       string         // URL with symbols to fetch data
+	cookies   string         // cookies for auth
+	crumb     string         // crumb for the cookies, to be applied as a query param
 }
 
 // Returns new initialized Market struct.
@@ -89,6 +93,10 @@ func NewMarket(vendor APISourceType) *Market {
 	}
 
 	market.regex = regexp.MustCompile(strings.Join(rules, ``))
+
+	market.cookies = fetchCookies()
+	market.crumb = fetchCrumb(market.cookies)
+	market.url = fmt.Sprintf(marketURL, market.crumb, `^DJI,^IXIC,^GSPC,^N225,^HSI,^FTSE,^GDAXI,^TNX,CL=F,JPY=X,EUR=X,GC=F`) + marketURLQueryParts
 
 	return market
 }
@@ -157,22 +165,46 @@ func (market *Market) FetchYahoo() (self *Market) {
 	defer func() {
 		if err := recover(); err != nil {
 			market.errors = fmt.Sprintf("Error fetching market data...\n%s", err)
+		} else {
+			market.errors = ""
 		}
 	}()
 
-	response, err := http.Get(marketURL)
+	client := http.Client{}
+	request, err := http.NewRequest("GET", market.url, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	request.Header = http.Header{
+		"Accept":          {"*/*"},
+		"Accept-Language": {"en-US,en;q=0.5"},
+		"Connection":      {"keep-alive"},
+		"Content-Type":    {"application/json"},
+		"Cookie":          {market.cookies},
+		"Host":            {"query1.finance.yahoo.com"},
+		"Origin":          {"https://finance.yahoo.com"},
+		"Referer":         {"https://finance.yahoo.com"},
+		"Sec-Fetch-Dest":  {"empty"},
+		"Sec-Fetch-Mode":  {"cors"},
+		"Sec-Fetch-Site":  {"same-site"},
+		"TE":              {"trailers"},
+		"User-Agent":      {userAgent},
+	}
+
+	response, err := client.Do(request)
 	if err != nil {
 		panic(err)
 	}
 
 	defer response.Body.Close()
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		panic(err)
 	}
 
 	body = market.isMarketOpen(body)
-	return market.extract(market.trim(body))
+	return market.extract(body)
 }
 
 // Ok returns two values: 1) boolean indicating whether the error has occured,
@@ -181,73 +213,47 @@ func (market *Market) Ok() (bool, string) {
 	return market.errors == ``, market.errors
 }
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 func (market *Market) isMarketOpen(body []byte) []byte {
 	// TBD -- CNN page doesn't seem to have market open/close indicator.
 	return body
 }
 
-//-----------------------------------------------------------------------------
-func (market *Market) trim(body []byte) []byte {
-	start := bytes.Index(body, []byte(`Markets Overview`))
-	finish := bytes.LastIndex(body, []byte(`Gainers`))
-	snippet := bytes.Replace(body[start:finish], []byte{'\n'}, []byte{}, -1)
-	snippet = bytes.Replace(snippet, []byte(`&amp;`), []byte{'&'}, -1)
-
-	return snippet
+// -----------------------------------------------------------------------------
+func assign(results []map[string]interface{}, position int, changeAsPercent bool) map[string]string {
+	out := make(map[string]string)
+	out[`change`] = float2Str(results[position]["regularMarketChange"].(float64))
+	out[`latest`] = float2Str(results[position]["regularMarketPrice"].(float64))
+	if changeAsPercent {
+		out[`change`] = float2Str(results[position]["regularMarketChangePercent"].(float64)) + `%`
+	} else {
+		out[`percent`] = float2Str(results[position]["regularMarketChangePercent"].(float64))
+	}
+	return out
 }
 
-//-----------------------------------------------------------------------------
-func (market *Market) extract(snippet []byte) *Market {
-	matches := market.regex.FindStringSubmatch(string(snippet))
-
-	if len(matches) < 31 {
-		panic(`Unable to parse ` + marketURL)
+// -----------------------------------------------------------------------------
+func (market *Market) extract(body []byte) *Market {
+	d := map[string]map[string][]map[string]interface{}{}
+	err := json.Unmarshal(body, &d)
+	if err != nil {
+		panic(err)
 	}
-
-	market.Dow[`change`] = matches[1]
-	market.Dow[`latest`] = matches[2]
-	market.Dow[`percent`] = matches[3]
-
-	market.Nasdaq[`change`] = matches[4]
-	market.Nasdaq[`latest`] = matches[5]
-	market.Nasdaq[`percent`] = matches[6]
-
-	market.Sp500[`change`] = matches[7]
-	market.Sp500[`latest`] = matches[8]
-	market.Sp500[`percent`] = matches[9]
-
+	results := d["quoteResponse"]["result"]
+	market.Dow = assign(results, 0, false)
+	market.Nasdaq = assign(results, 1, false)
+	market.Sp500 = assign(results, 2, false)
+	market.Tokyo = assign(results, 3, false)
+	market.HongKong = assign(results, 4, false)
+	market.London = assign(results, 5, false)
+	market.Frankfurt = assign(results, 6, false)
 	market.Yield[`name`] = `10-year Yield`
-	market.Yield[`latest`] = matches[10]
-	market.Yield[`change`] = matches[11]
+	market.Yield = assign(results, 7, false)
 
-	market.Oil[`latest`] = matches[12]
-	market.Oil[`change`] = matches[13]
-
-	market.Yen[`latest`] = matches[14]
-	market.Yen[`change`] = matches[15]
-
-	market.Euro[`latest`] = matches[16]
-	market.Euro[`change`] = matches[17]
-
-	market.Gold[`latest`] = matches[18]
-	market.Gold[`change`] = matches[19]
-
-	market.Tokyo[`change`] = matches[20]
-	market.Tokyo[`latest`] = matches[21]
-	market.Tokyo[`percent`] = matches[22]
-
-	market.HongKong[`change`] = matches[23]
-	market.HongKong[`latest`] = matches[24]
-	market.HongKong[`percent`] = matches[25]
-
-	market.London[`change`] = matches[26]
-	market.London[`latest`] = matches[27]
-	market.London[`percent`] = matches[28]
-
-	market.Frankfurt[`change`] = matches[29]
-	market.Frankfurt[`latest`] = matches[30]
-	market.Frankfurt[`percent`] = matches[31]
+	market.Oil = assign(results, 8, true)
+	market.Yen = assign(results, 9, true)
+	market.Euro = assign(results, 10, true)
+	market.Gold = assign(results, 11, true)
 
 	return market
 }
