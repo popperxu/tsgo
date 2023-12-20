@@ -25,13 +25,36 @@ const (
 
 func GetRealtimeSina(code string) []*RealTimeData {
 	//fmt.Println(fmt.Sprintf(URL_SINA_REAL_TIME, code))
-	resp, err := http.DefaultClient.Get(fmt.Sprintf(URL_SINA_REAL_TIME, code))
+
+	client := http.Client{}
+	request, err := http.NewRequest("GET", fmt.Sprintf(URL_SINA_REAL_TIME, code), nil)
+	if err != nil {
+		panic(err)
+	}
+
+	request.Header = http.Header{
+		"Accept":          {"*/*"},
+		"Accept-Language": {"en-US,en;q=0.5"},
+		"Connection":      {"keep-alive"},
+		"Content-Type":    {"application/json"},
+		"Referer":         {"https://finance.sina.com.cn"},
+	}
+
+	resp, err := client.Do(request)
+	if err != nil {
+		panic(err)
+	}
+
 	checkErr(err)
 	if resp == nil || resp.StatusCode != http.StatusOK {
 		return nil
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(body))
 	res := mahonia.NewDecoder("gbk").ConvertString(string(body))
 
 	var dataList []*RealTimeData

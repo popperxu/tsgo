@@ -102,6 +102,7 @@ build: $(INSTALL_PREFIX) generate-optimized
 	  " -X github.com/saycv/tsgo.BuildCommit=$(BUILD_COMMIT)\
 	    -X github.com/saycv/tsgo.BuildTag=$(BUILD_TAG) \
 	    -X github.com/saycv/tsgo.BuildTime=$(BUILD_TIME)" \
+	  -gcflags "all=-N -l" \
 	  -o $(BINARY_PATH) \
 	  cmd/tsgo/*.go
 
@@ -137,6 +138,7 @@ quick-install:
 	  " -X github.com/saycv/tsgo.BuildCommit=$(BUILD_COMMIT)\
 	    -X github.com/saycv/tsgo.BuildTag=$(BUILD_TAG) \
 	    -X github.com/saycv/tsgo.BuildTime=$(BUILD_TIME)" \
+	  -gcflags "all=-N -l" \
 	  -o $(BINARY_PATH) \
 	  cmd/tsgo/*.go
 	@cp $(BINARY_PATH) $(GOPATH)/bin
