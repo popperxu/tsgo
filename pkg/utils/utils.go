@@ -79,19 +79,11 @@ func StockWithPrefixEastmoney(code []string) []string {
 	for _, one := range code {
 		new := ""
 		switch {
-		case strings.HasPrefix(one, "000"):
+		case strings.HasPrefix(one, "00"):
 			new = fmt.Sprintf("0.%s", one)
-		case strings.HasPrefix(one, "002"):
+		case strings.HasPrefix(one, "30"):
 			new = fmt.Sprintf("0.%s", one)
-		case strings.HasPrefix(one, "300"):
-			new = fmt.Sprintf("0.%s", one)
-		case strings.HasPrefix(one, "600"):
-			new = fmt.Sprintf("1.%s", one)
-		case strings.HasPrefix(one, "601"):
-			new = fmt.Sprintf("1.%s", one)
-		case strings.HasPrefix(one, "603"):
-			new = fmt.Sprintf("1.%s", one)
-		case strings.HasPrefix(one, "605"):
+		case strings.HasPrefix(one, "60"):
 			new = fmt.Sprintf("1.%s", one)
 		case strings.HasPrefix(one, "688"):
 			new = fmt.Sprintf("1.%s", one)

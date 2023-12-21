@@ -54,7 +54,6 @@ func GetRealtimeSina(code string) []*RealTimeData {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(string(body))
 	res := mahonia.NewDecoder("gbk").ConvertString(string(body))
 
 	var dataList []*RealTimeData
