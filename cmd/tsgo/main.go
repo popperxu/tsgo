@@ -23,6 +23,9 @@ func main() {
 	rootCmd.AddCommand(eastmoneyAPICmd)
 	rootCmd.AddCommand(eastmoneyLimitupAPICmd)
 	rootCmd.AddCommand(eastmoneyLhbAPICmd)
+	if len(os.Args) <= 1 {
+		rootCmd.SetArgs([]string{eastmoneyAPICmd.Use})
+	}
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

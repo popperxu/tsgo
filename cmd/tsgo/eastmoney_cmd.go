@@ -20,7 +20,7 @@ func NewEastmoneyAPICmd() *cobra.Command {
 
 	rootCmd := &cobra.Command{
 		Use:   "eastmoney",
-		Short: `Fetch finance from eastmoney API`,
+		Short: `Fetch finance from eastmoney API (default)`,
 		Args:  cobra.ArbitraryArgs,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			lvl, err := log.ParseLevel(logLevel)
