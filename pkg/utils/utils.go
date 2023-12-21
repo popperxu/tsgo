@@ -19,21 +19,13 @@ func StockWithPrefix(code []string) []string {
 	for _, one := range code {
 		new := ""
 		switch {
-		case strings.HasPrefix(one, "000"):
+		case strings.HasPrefix(one, "00"):
 			new = fmt.Sprintf("sz%s", one)
-		case strings.HasPrefix(one, "002"):
+		case strings.HasPrefix(one, "30"):
 			new = fmt.Sprintf("sz%s", one)
-		case strings.HasPrefix(one, "300"):
-			new = fmt.Sprintf("sz%s", one)
-		case strings.HasPrefix(one, "600"):
+		case strings.HasPrefix(one, "60"):
 			new = fmt.Sprintf("sh%s", one)
-		case strings.HasPrefix(one, "601"):
-			new = fmt.Sprintf("sh%s", one)
-		case strings.HasPrefix(one, "603"):
-			new = fmt.Sprintf("sh%s", one)
-		case strings.HasPrefix(one, "605"):
-			new = fmt.Sprintf("sh%s", one)
-		case strings.HasPrefix(one, "688"):
+		case strings.HasPrefix(one, "68"):
 			new = fmt.Sprintf("sh%s", one)
 		default:
 			new = one
@@ -49,21 +41,13 @@ func StockWithPrefixNetease(code []string) []string {
 	for _, one := range code {
 		new := ""
 		switch {
-		case strings.HasPrefix(one, "000"):
+		case strings.HasPrefix(one, "00"):
 			new = fmt.Sprintf("1%s", one)
-		case strings.HasPrefix(one, "002"):
+		case strings.HasPrefix(one, "30"):
 			new = fmt.Sprintf("1%s", one)
-		case strings.HasPrefix(one, "300"):
-			new = fmt.Sprintf("1%s", one)
-		case strings.HasPrefix(one, "600"):
+		case strings.HasPrefix(one, "60"):
 			new = fmt.Sprintf("0%s", one)
-		case strings.HasPrefix(one, "601"):
-			new = fmt.Sprintf("0%s", one)
-		case strings.HasPrefix(one, "603"):
-			new = fmt.Sprintf("0%s", one)
-		case strings.HasPrefix(one, "605"):
-			new = fmt.Sprintf("0%s", one)
-		case strings.HasPrefix(one, "688"):
+		case strings.HasPrefix(one, "68"):
 			new = fmt.Sprintf("0%s", one)
 		default:
 			new = one
@@ -85,7 +69,7 @@ func StockWithPrefixEastmoney(code []string) []string {
 			new = fmt.Sprintf("0.%s", one)
 		case strings.HasPrefix(one, "60"):
 			new = fmt.Sprintf("1.%s", one)
-		case strings.HasPrefix(one, "688"):
+		case strings.HasPrefix(one, "68"):
 			new = fmt.Sprintf("1.%s", one)
 		default:
 			new = one
